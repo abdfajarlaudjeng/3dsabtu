@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Filter Angka Main Crass</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 20px; }
+textarea, button { margin: 5px 0; padding: 5px; width: 100%; }
+table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+th, td { border: 1px solid #ccc; padding: 5px; text-align: center; }
+th { background: #f2f2f2; }
+</style>
+</head>
+<body>
+
+<h2>Filter Angka Main Crass</h2>
+
+<label>Masukkan Angka Main (max 8 digit per baris, max 15 baris):</label><br>
+<textarea id="angkaMain" rows="8" placeholder="Contoh:
+12345678
+456
+90"></textarea><br>
+
+<button onclick="filterData()">Filter</button>
+<button onclick="resetData()">Reset</button>
+
+<h3>Hasil Filter:</h3>
+<table id="hasilTable">
+    <thead>
+        <tr>
+            <th>No</th>
+            <th>Angka 3D</th>
+            <th>Kepala</th>
+            <th>Ekor</th>
+            <th>Angka Main Crass</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<script>
+let dataAwal = []; // Semua angka dari 000-999
+let hasilTerakhir = [];
+
+// Generate angka 000-999
+for (let i = 0; i <= 999; i++) {
+    let num = i.toString().padStart(3, '0');
+    dataAwal.push(num);
+}
+hasilTerakhir = [...dataAwal];
+
+// Tampilkan awal semua data
+tampilkanTabel(hasilTerakhir, []);
+
+function filterData() {
+    let angkaMainInput = document.getElementById("angkaMain").value.trim();
+    if (!angkaMainInput) {
+        alert("Masukkan angka main!");
+        return;
+    }
+
+    // Ambil semua baris (max 15 baris)
+    let baris = angkaMainInput.split("\n").map(b => b.trim()).filter(b => b !== "");
+    if (baris.length > 15) {
+        alert("Maksimal 15 baris angka main!");
+        return;
+    }
+
+    // Proses filter untuk setiap baris (bertahap)
+    baris.forEach(barisAngka => {
+        if (barisAngka.length > 8) {
+            alert("Baris '" + barisAngka + "' lebih dari 8 digit!");
+            return;
+        }
+        hasilTerakhir = hasilTerakhir.filter(num => {
+            let kepala = num.charAt(1); // kepala = digit ke-2
+            let ekor = num.charAt(2);   // ekor = digit ke-3
+            return barisAngka.includes(kepala) || barisAngka.includes(ekor);
+        });
+    });
+
+    tampilkanTabel(hasilTerakhir, baris);
+}
+
+function tampilkanTabel(data, angkaMainList) {
+    let tbody = document.querySelector("#hasilTable tbody");
+    tbody.innerHTML = "";
+    data.forEach((num, index) => {
+        let kepala = num.charAt(1);
+        let ekor = num.charAt(2);
+        let cocok = [];
+        angkaMainList.forEach(angkaMain => {
+            if (angkaMain.includes(kepala) && !cocok.includes(kepala)) cocok.push(kepala);
+            if (angkaMain.includes(ekor) && !cocok.includes(ekor)) cocok.push(ekor);
+        });
+
+        let row = `<tr>
+            <td>${index + 1}</td>
+            <td>${num}</td>
+            <td>${kepala}</td>
+            <td>${ekor}</td>
+            <td>${cocok.join(", ")}</td>
+        </tr>`;
+        tbody.innerHTML += row;
+    });
+}
+
+function resetData() {
+    hasilTerakhir = [...dataAwal];
+    document.getElementById("angkaMain").value = "";
+    tampilkanTabel(hasilTerakhir, []);
+}
+</script>
+
+</body>
+</html>
