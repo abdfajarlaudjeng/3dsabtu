@@ -1,65 +1,115 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<title>Filter Kepala & Ekor 3D</title>
-<style>
-  body { font-family: Arial, sans-serif; margin: 20px; }
-  textarea { width: 200px; height: 150px; }
-  button { margin: 5px; }
-  table { border-collapse: collapse; margin-top: 10px; }
-  th, td { border: 1px solid #000; padding: 5px; text-align: center; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rekap 3D - Filter Kepala & Ekor</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { padding-top: 70px; }
+    textarea { font-family: monospace; }
+  </style>
 </head>
 <body>
 
-<h2>Input Data Angka 3D</h2>
-<textarea id="angka3D" placeholder="Contoh: 123&#10;456&#10;789"></textarea>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Rekap 3D</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="index.html">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="filter.html">Filter</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
 
-<h2>Angka Main Kepala</h2>
-<textarea id="angkaKepala" placeholder="Contoh: 1&#10;4&#10;7"></textarea>
+<!-- Konten -->
+<div class="container">
+  <h3 class="mb-3">Filter Angka 3D</h3>
+  
+  <div class="mb-3">
+    <label class="form-label">Daftar Angka 3D (max 15 baris, max 8 digit per baris)</label>
+    <textarea id="angkaData" class="form-control" rows="5" placeholder="Contoh:&#10;123&#10;456"></textarea>
+  </div>
 
-<h2>Angka Main Ekor</h2>
-<textarea id="angkaEkor" placeholder="Contoh: 3&#10;6&#10;9"></textarea>
+  <div class="mb-3">
+    <label class="form-label">Angka Main Kepala</label>
+    <input type="text" id="angkaKepala" class="form-control" placeholder="Misal: 1 2 3">
+  </div>
 
-<br>
-<button onclick="filterKepala()">Filter Kepala</button>
-<button onclick="filterEkor()">Filter Ekor</button>
+  <div class="mb-3">
+    <label class="form-label">Angka Main Ekor</label>
+    <input type="text" id="angkaEkor" class="form-control" placeholder="Misal: 4 5 6">
+  </div>
 
-<div id="hasilKepala"></div>
-<div id="hasilEkor"></div>
+  <button class="btn btn-primary mb-3" onclick="filterData()">Filter</button>
+
+  <h4>Hasil Filter</h4>
+  <table class="table table-bordered table-sm">
+    <thead>
+      <tr>
+        <th>No</th>
+        <th>Angka 3D</th>
+        <th>Kepala</th>
+        <th>Ekor</th>
+        <th>Angka Main Crass</th>
+      </tr>
+    </thead>
+    <tbody id="hasilFilter"></tbody>
+  </table>
+</div>
 
 <script>
-function filterKepala() {
-    let data3D = document.getElementById("angka3D").value.trim().split(/\s+/);
-    let kepalaList = document.getElementById("angkaKepala").value.trim().split(/\s+/);
-    let hasil = data3D.filter(num => kepalaList.includes(num.charAt(0)));
+let currentData = [];
 
-    tampilkanTabel(hasil, "hasilKepala", "Hasil Filter Kepala");
-}
+function filterData() {
+  let dataInput = document.getElementById("angkaData").value.trim().split("\n").filter(v => v.trim() !== "");
+  let kepalaMain = document.getElementById("angkaKepala").value.trim().split(/\s+/);
+  let ekorMain = document.getElementById("angkaEkor").value.trim().split(/\s+/);
 
-function filterEkor() {
-    let data3D = document.getElementById("angka3D").value.trim().split(/\s+/);
-    let ekorList = document.getElementById("angkaEkor").value.trim().split(/\s+/);
-    let hasil = data3D.filter(num => ekorList.includes(num.charAt(num.length-1)));
+  // Jika pertama kali input → set data awal
+  if (currentData.length === 0) {
+    currentData = dataInput;
+  }
 
-    tampilkanTabel(hasil, "hasilEkor", "Hasil Filter Ekor");
-}
+  // Filter kepala
+  if (kepalaMain.length > 0 && kepalaMain[0] !== "") {
+    currentData = currentData.filter(num => kepalaMain.includes(num[1])); // index[1] = kepala
+  }
 
-function tampilkanTabel(data, elemenId, judul) {
-    if (data.length === 0) {
-        document.getElementById(elemenId).innerHTML = `<h3>${judul}</h3><p>Tidak ada hasil</p>`;
-        return;
-    }
+  // Filter ekor
+  if (ekorMain.length > 0 && ekorMain[0] !== "") {
+    currentData = currentData.filter(num => ekorMain.includes(num[2])); // index[2] = ekor
+  }
 
-    let html = `<h3>${judul}</h3><table><tr><th>No</th><th>Angka</th></tr>`;
-    data.forEach((val, idx) => {
-        html += `<tr><td>${idx+1}</td><td>${val}</td></tr>`;
-    });
-    html += "</table>";
-    document.getElementById(elemenId).innerHTML = html;
+  // Tampilkan hasil
+  let tbody = document.getElementById("hasilFilter");
+  tbody.innerHTML = "";
+  currentData.forEach((num, i) => {
+    let kepala = num[1];
+    let ekor = num[2];
+    tbody.innerHTML += `
+      <tr>
+        <td>${i + 1}</td>
+        <td>${num}</td>
+        <td>${kepala}</td>
+        <td>${ekor}</td>
+        <td>${kepala} - ${ekor}</td>
+      </tr>
+    `;
+  });
 }
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
