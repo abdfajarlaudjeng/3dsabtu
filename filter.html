@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Filter Kepala & Ekor 3D</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; }
+  textarea { width: 200px; height: 150px; }
+  button { margin: 5px; }
+  table { border-collapse: collapse; margin-top: 10px; }
+  th, td { border: 1px solid #000; padding: 5px; text-align: center; }
+</style>
+</head>
+<body>
+
+<h2>Input Data Angka 3D</h2>
+<textarea id="angka3D" placeholder="Contoh: 123&#10;456&#10;789"></textarea>
+
+<h2>Angka Main Kepala</h2>
+<textarea id="angkaKepala" placeholder="Contoh: 1&#10;4&#10;7"></textarea>
+
+<h2>Angka Main Ekor</h2>
+<textarea id="angkaEkor" placeholder="Contoh: 3&#10;6&#10;9"></textarea>
+
+<br>
+<button onclick="filterKepala()">Filter Kepala</button>
+<button onclick="filterEkor()">Filter Ekor</button>
+
+<div id="hasilKepala"></div>
+<div id="hasilEkor"></div>
+
+<script>
+function filterKepala() {
+    let data3D = document.getElementById("angka3D").value.trim().split(/\s+/);
+    let kepalaList = document.getElementById("angkaKepala").value.trim().split(/\s+/);
+    let hasil = data3D.filter(num => kepalaList.includes(num.charAt(0)));
+
+    tampilkanTabel(hasil, "hasilKepala", "Hasil Filter Kepala");
+}
+
+function filterEkor() {
+    let data3D = document.getElementById("angka3D").value.trim().split(/\s+/);
+    let ekorList = document.getElementById("angkaEkor").value.trim().split(/\s+/);
+    let hasil = data3D.filter(num => ekorList.includes(num.charAt(num.length-1)));
+
+    tampilkanTabel(hasil, "hasilEkor", "Hasil Filter Ekor");
+}
+
+function tampilkanTabel(data, elemenId, judul) {
+    if (data.length === 0) {
+        document.getElementById(elemenId).innerHTML = `<h3>${judul}</h3><p>Tidak ada hasil</p>`;
+        return;
+    }
+
+    let html = `<h3>${judul}</h3><table><tr><th>No</th><th>Angka</th></tr>`;
+    data.forEach((val, idx) => {
+        html += `<tr><td>${idx+1}</td><td>${val}</td></tr>`;
+    });
+    html += "</table>";
+    document.getElementById(elemenId).innerHTML = html;
+}
+</script>
+
+</body>
+</html>
